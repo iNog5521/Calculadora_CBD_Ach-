@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Extrato Achē</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; 
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f9f4; /* Fundo da página verde bem claro */
+        }
+        
+        .product-title {
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        /* Card com tom entre Magenta e Vermelho */
+        .card { 
+            background: #D81B60; 
+            padding: 2rem; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2); 
+            max-width: 400px; 
+            width: 90%; 
+            color: white; /* Texto branco para contrastar com o fundo escuro */
+        }
+
+        h2 { color: white; text-align: center; margin-top: 0; font-size: 1.4rem; margin-bottom: 1.5rem; }
+        
+        .input-group { margin-bottom: 1.2rem; }
+        
+        label { display: block; margin-bottom: 0.4rem; font-weight: 600; color: #ffebee; font-size: 0.9rem; }
+        
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            border: none; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-size: 1rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+        
+        input:focus { outline: 2px solid #ff80ab; background-color: #ffffff; }
+
+        .results { 
+            background: rgba(255, 255, 255, 0.15); 
+            padding: 1.2rem; 
+            border-radius: 8px; 
+            border-left: 5px solid #ffffff; 
+            margin-top: 1rem;
+        }
+        
+        .results p { margin: 8px 0; color: white; font-size: 1rem; }
+        
+        span { font-weight: bold; color: #ffeb3b; } /* Amarelo claro para os números se destacarem */
+        
+        hr { border: 0; border-top: 1px solid rgba(255,255,255,0.3); margin: 10px 0; }
+        
+        .footer-note { font-size: 0.75rem; color: #ffcdd2; text-align: center; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="product-title">Extrato de Cannabis Achē 36,76mg/ml</div>
+
+<div class="card">
+    <h2>Conversor de Dosagem</h2>
+    
+    <div class="input-group">
+        <label for="mgCBD">Dose desejada de CBD (mg):</label>
+        <input type="number" id="mgCBD" step="0.1" placeholder="Ex: 10" oninput="calcularPorCBD()">
+    </div>
+
+    <div class="input-group">
+        <label for="gotas">Quantidade de Gotas:</label>
+        <input type="number" id="gotas" placeholder="Ex: 12" oninput="calcularPorGotas()">
+    </div>
+
+    <div class="input-group">
+        <label for="ml">Quantidade em mL:</label>
+        <input type="number" id="ml" step="0.1" placeholder="Ex: 0.5" oninput="calcularPorML()">
+    </div>
+
+    <div class="results">
+        <p>Volume: <span id="resML">0</span> mL</p>
+        <p>Gotas: <span id="resGotas">0</span> gotas</p>
+        <hr>
+        <p>CBD Total: <span id="resCBD">0.00</span> mg</p>
+        <p>THC Total: <span id="resTHC">0.00</span> mg</p>
+    </div>
+    
+    <div class="footer-note">
+        Baseado em: 1mL = 30 gotas | 25mg CBD/mL
+      Desenvolvido por Bruno Medeiros
+    </div>
+  
+</div>
+
+<script>
+    const GOTAS_POR_ML = 30;
+    const CBD_POR_ML = 25;
+    const THC_POR_ML = 1;
+    const CBD_POR_GOTA = 0.83;
+    const THC_POR_GOTA = 0.03;
+
+    function calcularPorCBD() {
+        let cbd = document.getElementById('mgCBD').value;
+        if (cbd < 0) cbd = 0;
+        let ml = cbd / CBD_POR_ML;
+        let gotas = ml * GOTAS_POR_ML;
+        let thc = ml * THC_POR_ML;
+        atualizarInterface(gotas, ml, cbd, thc);
+        document.getElementById('gotas').value = cbd ? Math.round(gotas) : "";
+        document.getElementById('ml').value = cbd ? parseFloat(ml.toFixed(2)) : "";
+    }
+
+    function calcularPorGotas() {
+        let gotas = document.getElementById('gotas').value;
+        if (gotas < 0) gotas = 0;
+        let ml = gotas / GOTAS_POR_ML;
+        let cbd = gotas * CBD_POR_GOTA;
+        let thc = gotas * THC_POR_GOTA;
+        atualizarInterface(gotas, ml, cbd, thc);
+        document.getElementById('ml').value = gotas ? parseFloat(ml.toFixed(2)) : "";
+        document.getElementById('mgCBD').value = gotas ? cbd.toFixed(2) : "";
+    }
+
+    function calcularPorML() {
+        let ml = document.getElementById('ml').value;
+        if (ml < 0) ml = 0;
+        let gotas = ml * GOTAS_POR_ML;
+        let cbd = ml * CBD_POR_ML;
+        let thc = ml * THC_POR_ML;
+        atualizarInterface(gotas, ml, cbd, thc);
+        document.getElementById('gotas').value = ml ? Math.round(gotas) : "";
+        document.getElementById('mgCBD').value = ml ? cbd.toFixed(2) : "";
+    }
+
+    function atualizarInterface(gotas, ml, cbd, thc) {
+        document.getElementById('resML').innerText = ml ? parseFloat(ml).toFixed(2) : "0";
+        document.getElementById('resGotas').innerText = gotas ? Math.round(gotas) : "0";
+        document.getElementById('resCBD').innerText = cbd ? parseFloat(cbd).toFixed(2) : "0.00";
+        document.getElementById('resTHC').innerText = thc ? parseFloat(thc).toFixed(2) : "0.00";
+    }
+</script>
+
+</body>
+</html>
